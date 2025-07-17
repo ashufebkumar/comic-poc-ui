@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Character } from '../types';
+import React from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from '../components/ui/textarea';
@@ -14,6 +15,8 @@ interface CharacterManagerProps {
   onCharactersChange: (characters: Character[]) => void;
   aiImageUrl: any,
   setAiImageUrl: any,
+  characterImageMap: { [name: string]: string },
+  setCharacterImageMap: React.Dispatch<React.SetStateAction<{ [name: string]: string }>>,
 }
 
 let brakeImage = false;
@@ -21,7 +24,7 @@ let brakeImage = false;
 let pollingTimeout: NodeJS.Timeout | null = null;
 
 
-export default function CharacterManager({ characters, onCharactersChange, aiImageUrl, setAiImageUrl }: CharacterManagerProps) {
+export default function CharacterManager({ characters, onCharactersChange, aiImageUrl, setAiImageUrl, characterImageMap, setCharacterImageMap }: CharacterManagerProps) {
   const [isGenerating, setIsGenerating] = useState<string | null>(null);
   const [imageLoader, setImageLoader] = useState<boolean>(false);
   const [ashu, setAshu] = useState<any>(null);
@@ -62,13 +65,8 @@ export default function CharacterManager({ characters, onCharactersChange, aiIma
     onCharactersChange(characters.filter(char => char.id !== id));
   };
 
-
-  function getCharacterImage2(imageId:any) {
-    console.log("test__id", imageId);
-  }
-
-  let getCharacterImage = async ({imageId, test}: {imageId: string, test?: boolean}) => {
-    console.log('Inside getCharacterImage Fetching character image with ID: test__id', imageId, test);
+  let getCharacterImage = async ({imageId, characterId}: { imageId: string, characterId: string }) => {
+    console.log('Inside getCharacterImage Fetching character image with ID: test__id', imageId);
     const response = await fetch('https://backend.build.mugafi.com/v1/external/midjourney', {
         method: 'POST',
         headers: { 
@@ -87,7 +85,7 @@ export default function CharacterManager({ characters, onCharactersChange, aiIma
          setImageLoader(false);
          brakeImage = true;
          throw new Error('Failed to generate image');
-        }
+      }
         const result = await response.json();
         console.log('Image generation response:', result);
 
@@ -105,16 +103,33 @@ export default function CharacterManager({ characters, onCharactersChange, aiIma
             console.log('test__replaced', replaced);
             setAiImageUrl(replaced);
           }
+
+          updateCharacter(characterId, { imageUrl: data?.images?.[0]?.url || '' });
+          // Update characterImageMap with the character name and CDN image URL
+          const character = characters.find(char => char.id === characterId);
+          if (character && data?.images?.[1]?.url) {
+            setCharacterImageMap((prev: { [name: string]: string }) => ({ ...prev, [character.name]: data.images[1].url }));
+          } else if (character && data?.images?.[0]?.url) {
+            setCharacterImageMap((prev: { [name: string]: string }) => ({ ...prev, [character.name]: data.images[0].url }));
+          }
+
           setAshu(data);
           brakeImage = true; // Stop further requests once image is ready
           return;
         }
+
+
   }
 
   const upscaleImage = async (cData: any) => {
     setImageLoader(true)
     console.log('Upscaling image with data:', cData);
     const {indexNumber, imageHash, msgId, imageId} = cData;
+
+      // ✅ Find characterId by matching imageId
+    const matchedCharacter = characters.find((char) => char.imageId === imageId);
+    const characterId = matchedCharacter?.id || '';
+
     const response = await fetch('https://backend.build.mugafi.com/v1/external/midjourney', {
         method: 'POST',
         headers: { 
@@ -131,32 +146,29 @@ export default function CharacterManager({ characters, onCharactersChange, aiIma
         })
       });
 
-      
-
       if (!response.ok) {
          setImageLoader(false);
          brakeImage = true;
          throw new Error('Failed to generate image');
       }
-        const result = await response.json();
-        console.log('Image generation response:', result);
+      const result = await response.json();
+      console.log('Image generation response:', result);
 
-        if (result.status === 0){
-            await sleep(5000);
-            getCharacterImage({imageId: imageId})
-        }
-        
+      if (result.status === 0){
+        await sleep(5000);
+        getCharacterImage({imageId, characterId})
+      }
   }
   
 
-  const startImagePolling = ({imageId, test}: any) => {
+  const startImagePolling = ({ imageId, characterId }: { imageId: string, characterId: string }) => {
     if (pollingTimeout) clearTimeout(pollingTimeout); // Clear any previous poll
 
     const poll = async () => {
       if (brakeImage) return;
 
       console.log("Polling imageId:", imageId);
-      getCharacterImage({ imageId, test: true });
+      await getCharacterImage({ imageId, characterId });
 
       pollingTimeout = setTimeout(poll, 5000); // Recursive poll
     };
@@ -202,7 +214,9 @@ export default function CharacterManager({ characters, onCharactersChange, aiIma
         const imageId = data?.id;
         console.log('Generated image ID: test__data', data);
 
-        startImagePolling({imageId: data?.id, test: true});
+        // startImagePolling({imageId: data?.id, test: true});
+
+        startImagePolling({ imageId: data?.id, characterId: character.id });
 
         
         if (!imageId) throw new Error('Image ID not found in response');

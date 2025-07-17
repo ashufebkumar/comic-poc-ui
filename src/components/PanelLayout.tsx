@@ -105,26 +105,30 @@ export default function PanelLayout({ page, onPageChange }: PanelLayoutProps) {
       </div>
 
       <div className={`grid gap-4 ${getGridLayout()}`}>
-        {page.panels.map((panel, index) => (
-          <Card key={panel.id} className={`${getPanelSize(index)} min-h-[200px]`}>
-            <CardContent className="p-4 h-full">
-              <div className="text-sm text-muted-foreground mb-2">
-                Panel {index + 1}
-              </div>
-              {panel.imageUrl ? (
-                <img
-                  src={`data:image/png;base64,${panel.imageUrl}`}
-                  alt={`Panel ${index + 1}`}
-                  className="w-full h-full object-cover rounded border"
-                />
-              ) : (
-                <div className="w-full h-full bg-muted rounded border-2 border-dashed border-muted-foreground/25 flex items-center justify-center">
-                  <span className="text-muted-foreground">Panel content will appear here</span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+        {page.panels.map((panel: Panel, index: number) => {
+          // Determine the latest image to show: upscaled if available, otherwise generated
+          let imageUrl = undefined;
+          if (panel.imageData && panel.imageData.images && panel.imageData.images.length > 1) {
+            imageUrl = panel.imageData.images[panel.imageData.images.length - 1].url;
+          } else if (panel.imageData && panel.imageData.images && panel.imageData.images.length > 0) {
+            imageUrl = panel.imageData.images[0].url;
+          } else if (panel.imageUrl) {
+            imageUrl = panel.imageUrl;
+          }
+          return (
+            <Card key={panel.id} className={`${getPanelSize(index)} min-h-[200px]`}>
+              <CardContent className="p-4 h-full flex items-center justify-center">
+                {imageUrl ? (
+                  <img
+                    src={imageUrl}
+                    alt={`Panel ${index + 1}`}
+                    className="w-full h-full object-cover rounded border"
+                  />
+                ) : null}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );

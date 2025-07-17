@@ -871,17 +871,8 @@ video {
 .border {
   border-width: 1px;
 }
-.border-2 {
-  border-width: 2px;
-}
-.border-dashed {
-  border-style: dashed;
-}
 .border-input {
   border-color: hsl(var(--input));
-}
-.border-muted-foreground\/25 {
-  border-color: hsl(var(--muted-foreground) / 0.25);
 }
 .bg-\[\#262222\] {
   --tw-bg-opacity: 1;

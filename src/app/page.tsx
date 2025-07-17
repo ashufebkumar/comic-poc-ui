@@ -14,6 +14,7 @@ import { StoredProject, saveProject } from '../lib/storage';
 export default function Home() {
   const [currentProject, setCurrentProject] = useState<StoredProject | null>(null);
   const [aiImageUrl, setAiImageUrl] = useState<any>([]);
+  const [characterImageMap, setCharacterImageMap] = useState<{ [name: string]: string }>({});
 
   const [comic, setComic] = useState<Comic>({
     id: generateId(),
@@ -111,6 +112,8 @@ export default function Home() {
                   setAiImageUrl={setAiImageUrl}
                   characters={comic.characters}
                   onCharactersChange={updateCharacters}
+                  characterImageMap={characterImageMap}
+                  setCharacterImageMap={setCharacterImageMap}
                 />
               </CardContent>
             </Card>
@@ -140,6 +143,7 @@ export default function Home() {
                   page={currentPage}
                   characters={comic.characters}
                   onPageChange={updateCurrentPage}
+                  characterImageMap={characterImageMap}
                 />
               </CardContent>
             </Card>

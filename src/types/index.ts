@@ -16,6 +16,8 @@ export interface Panel {
   characters: string[];
   position: number;
   size: 'small' | 'medium' | 'large';
+  imageData?: any;
+  loading?: boolean;
 }
 
 export interface Page {

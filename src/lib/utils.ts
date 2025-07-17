@@ -32,5 +32,5 @@ export function downloadImage(base64: string, filename: string) {
 }
 
 export function generateCharacterTemplate(name: string, description: string): string {
-  return `${name}, ${description}. Professional comic book character art, clean lines, vibrant colors, consistent character design, detailed facial features, [INSERT_SPECIFIC_APPEARANCE_DETAILS], full body illustration, comic book style`;
+  return `${name}, ${description}. Professional comic book character art, clean lines, vibrant colors, consistent character design, detailed facial features, full body illustration, comic book style`; // [INSERT_SPECIFIC_APPEARANCE_DETAILS],
 }

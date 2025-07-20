@@ -64,7 +64,7 @@
 			},
 			body: JSON.stringify({
 			type: 'query',
-			payload: { id: imageData._id }
+			payload: { id: imageData.id }
 			})
 		});
 	

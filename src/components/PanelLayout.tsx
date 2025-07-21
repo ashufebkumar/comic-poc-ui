@@ -121,6 +121,7 @@ export default function PanelLayout({ page, onPageChange }: PanelLayoutProps) {
                 {imageUrl ? (
                   <img
                     src={imageUrl}
+                    style={{ maxWidth: '256px', height: 'auto' }}
                     alt={`Panel ${index + 1}`}
                     className="w-full h-full object-cover rounded border"
                   />

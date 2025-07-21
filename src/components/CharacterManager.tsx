@@ -67,11 +67,14 @@ export default function CharacterManager({ characters, onCharactersChange, aiIma
 
   let getCharacterImage = async ({imageId, characterId}: { imageId: string, characterId: string }) => {
     console.log('Inside getCharacterImage Fetching character image with ID: test__id', imageId);
+    const MIDJOURNEY_TOKEN = process.env.NEXT_PUBLIC_MIDJOURNEY_TOKEN || '';
+
+    
     const response = await fetch('https://backend.build.mugafi.com/v1/external/midjourney', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTUwNjY4MDMsInN1YiI6IjY3NTAwNmMwZWY3OWQxMDE3ZGU0ZjVmMiIsInBheWxvYWQiOnsidXNlcl9pZCI6IjY3NTAwNmMwZWY3OWQxMDE3ZGU0ZjVmMiJ9fQ.-dY65rp8puRbaTDz4InRBtHkQEjs_dJhQSIFPu0WanU',
+          'Authorization': MIDJOURNEY_TOKEN
          },
         body: JSON.stringify({
             type: "query",
@@ -93,13 +96,13 @@ export default function CharacterManager({ characters, onCharactersChange, aiIma
 
         if (data.status === 'ready') {
           setImageLoader(false);
-          const isNew = aiImageUrl.length === 0 || !!!(aiImageUrl.find((img: any) => img._id === data._id));
+          const isNew = aiImageUrl.length === 0 || !!!(aiImageUrl.find((img: any) => img.id === data.id));
           console.log('test__isNew', data);
           if (isNew) {
             console.log('test__aiImageUrl', [...aiImageUrl, data]);
             setAiImageUrl((e: any)=> [...e, data]);
           } else {
-            const replaced = aiImageUrl.map((img: any) => img._id === data._id ? data : img);
+            const replaced = aiImageUrl.map((img: any) => img.id === data.id ? data : img);
             console.log('test__replaced', replaced);
             setAiImageUrl(replaced);
           }
@@ -130,11 +133,12 @@ export default function CharacterManager({ characters, onCharactersChange, aiIma
     const matchedCharacter = characters.find((char) => char.imageId === imageId);
     const characterId = matchedCharacter?.id || '';
 
+    const MIDJOURNEY_TOKEN = process.env.NEXT_PUBLIC_MIDJOURNEY_TOKEN || '';
     const response = await fetch('https://backend.build.mugafi.com/v1/external/midjourney', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTUwNjY4MDMsInN1YiI6IjY3NTAwNmMwZWY3OWQxMDE3ZGU0ZjVmMiIsInBheWxvYWQiOnsidXNlcl9pZCI6IjY3NTAwNmMwZWY3OWQxMDE3ZGU0ZjVmMiJ9fQ.-dY65rp8puRbaTDz4InRBtHkQEjs_dJhQSIFPu0WanU',
+          'Authorization': MIDJOURNEY_TOKEN
          },
         body: JSON.stringify({
             type: "upscale",
@@ -187,11 +191,13 @@ export default function CharacterManager({ characters, onCharactersChange, aiIma
 
     setIsGenerating(character.id);
     try {
+      const MIDJOURNEY_TOKEN = process.env.NEXT_PUBLIC_MIDJOURNEY_TOKEN || '';
+      console.log('MIDJOURNEY_TOKEN', MIDJOURNEY_TOKEN);
       const response = await fetch('https://backend.build.mugafi.com/v1/external/midjourney', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTUwNjY4MDMsInN1YiI6IjY3NTAwNmMwZWY3OWQxMDE3ZGU0ZjVmMiIsInBheWxvYWQiOnsidXNlcl9pZCI6IjY3NTAwNmMwZWY3OWQxMDE3ZGU0ZjVmMiJ9fQ.-dY65rp8puRbaTDz4InRBtHkQEjs_dJhQSIFPu0WanU',
+          'Authorization': MIDJOURNEY_TOKEN
          },
         body: JSON.stringify({
             type: 'generate',
@@ -323,25 +329,25 @@ export default function CharacterManager({ characters, onCharactersChange, aiIma
           {!(data?.images?.[1]?.url) && !data?.loading && <div className="flex flex-row w-full items-center mt-4 gap-2 justify-center">
                 <Button
                   className="bg-[#262222] text-white px-4 py-2 rounded-md text-sm font-medium"
-                   onClick={() => upscaleImage({indexNumber: 1, imageHash: data?.images?.[0].image_hash, msgId: data?.images?.[0].message_id, imageId:data?._id})}
+                   onClick={() => upscaleImage({indexNumber: 1, imageHash: data?.images?.[0].image_hash, msgId: data?.images?.[0].message_id, imageId:data?.id})}
                 >
                   U1
                 </Button>
                 <Button
                   className="bg-[#262222] text-white px-4 py-2 rounded-md text-sm font-medium"
-                   onClick={() => upscaleImage({indexNumber: 2, imageHash: data?.images?.[0].image_hash, msgId: data?.images?.[0].message_id, imageId:data?._id})}
+                   onClick={() => upscaleImage({indexNumber: 2, imageHash: data?.images?.[0].image_hash, msgId: data?.images?.[0].message_id, imageId:data?.id})}
                 >
                   U2
                 </Button>
                 <Button
                   className="bg-[#262222] text-white px-4 py-2 rounded-md text-sm font-medium"
-                   onClick={() => upscaleImage({indexNumber: 3, imageHash: data?.images?.[0].image_hash, msgId: data?.images?.[0].message_id, imageId:data?._id})}
+                   onClick={() => upscaleImage({indexNumber: 3, imageHash: data?.images?.[0].image_hash, msgId: data?.images?.[0].message_id, imageId:data?.id})}
                 >
                   U3
                 </Button>
                 <Button
                   className="bg-[#262222] text-white px-4 py-2 rounded-md text-sm font-medium"
-                  onClick={() => upscaleImage({indexNumber: 4, imageHash: data?.images?.[0].image_hash, msgId: data?.images?.[0].message_id, imageId:data?._id})}
+                  onClick={() => upscaleImage({indexNumber: 4, imageHash: data?.images?.[0].image_hash, msgId: data?.images?.[0].message_id, imageId:data?.id})}
                 >
                   U4
                 </Button>

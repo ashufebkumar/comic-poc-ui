@@ -96,6 +96,8 @@ export default function Home() {
                 <ProjectManager
                   onProjectSelect={handleProjectSelect}
                   currentProject={currentProject}
+                  aiImageUrl={aiImageUrl}
+                  setAiImageUrl={setAiImageUrl}
                 />
               </CardContent>
             </Card>

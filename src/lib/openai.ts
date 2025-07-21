@@ -1,4 +1,4 @@
-import OpenAI from './openai';
+import OpenAI from 'openai';
 import { CharacterDetectionResponse, ImageGenerationRequest } from '@/types';
 
 const openai = new OpenAI({
@@ -22,7 +22,12 @@ export async function generateCharacterImage(prompt: string, quality: 'low' | 'm
     );
 
     if (imageGenerationCalls.length > 0) {
-      return imageGenerationCalls[0].result;
+      const call = imageGenerationCalls[0] as any;
+      if (typeof call['image_url'] === 'string') return call['image_url'];
+      if (typeof call['image'] === 'string') return call['image'];
+      if (typeof call['b64_json'] === 'string') return call['b64_json'];
+      if (typeof call['result'] === 'string') return call['result'];
+      throw new Error('No image property found on image_generation_call output');
     }
 
     throw new Error('No image generated');
@@ -211,8 +216,12 @@ Task: After this reasoning process, create a single comic book style panel image
     console.log('Image generation calls found:', imageGenerationCalls.length);
 
     if (imageGenerationCalls.length > 0) {
-      console.log('Successfully generated panel image');
-      return imageGenerationCalls[0].result;
+      const call = imageGenerationCalls[0] as any;
+      if (typeof call['image_url'] === 'string') return call['image_url'];
+      if (typeof call['image'] === 'string') return call['image'];
+      if (typeof call['b64_json'] === 'string') return call['b64_json'];
+      if (typeof call['result'] === 'string') return call['result'];
+      throw new Error('No image property found on image_generation_call output');
     }
 
     throw new Error('No image generation calls found in response');
@@ -228,7 +237,7 @@ export async function generatePanelImage({
   prompt,
   referenceImages = [],
   quality = 'low',
-  size = '512x512'
+  size = '1024x1024'
 }: ImageGenerationRequest): Promise<string> {
   try {
     const response = await openai.images.generate({

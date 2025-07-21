@@ -14,6 +14,9 @@
 	characterImageMap: { [name: string]: string };
 	}
 
+	// Required env: NEXT_PUBLIC_MIDJOURNEY_TOKEN
+	const MIDJOURNEY_TOKEN = process.env.NEXT_PUBLIC_MIDJOURNEY_TOKEN || '';
+
 	export default function ComicEditor({ page, characters, onPageChange, characterImageMap }: ComicEditorProps) {
 	const [isGeneratingPanels, setIsGeneratingPanels] = useState(false);
 
@@ -38,7 +41,7 @@
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
-			'Authorization': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTUwNjY4MDMsInN1YiI6IjY3NTAwNmMwZWY3OWQxMDE3ZGU0ZjVmMiIsInBheWxvYWQiOnsidXNlcl9pZCI6IjY3NTAwNmMwZWY3OWQxMDE3ZGU0ZjVmMiJ9fQ.-dY65rp8puRbaTDz4InRBtHkQEjs_dJhQSIFPu0WanU'
+			'Authorization': MIDJOURNEY_TOKEN
 		},
 		body: JSON.stringify({
 			type: "upscale",
@@ -60,7 +63,7 @@
 			method: 'POST',
 			headers: {
 			'Content-Type': 'application/json',
-			'Authorization': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTUwNjY4MDMsInN1YiI6IjY3NTAwNmMwZWY3OWQxMDE3ZGU0ZjVmMiIsInBheWxvYWQiOnsidXNlcl9pZCI6IjY3NTAwNmMwZWY3OWQxMDE3ZGU0ZjVmMiJ9fQ.-dY65rp8puRbaTDz4InRBtHkQEjs_dJhQSIFPu0WanU'
+			'Authorization': MIDJOURNEY_TOKEN
 			},
 			body: JSON.stringify({
 			type: 'query',
@@ -118,8 +121,10 @@
 				panel.content.toLowerCase().includes(name.toLowerCase())
 			);
 			let crefArg = '';
+			let srefArg = '';
 			if (matchedCharacterName) {
 				crefArg = ` --cref ${characterImageMap[matchedCharacterName]}`;
+				srefArg = ` --sref ${characterImageMap[matchedCharacterName]}`;
 			}
 
 			const matchedCharacter = characters.find(char =>
@@ -134,7 +139,7 @@
 			type: 'generate',
 			payload: {
 				prompt: prompt,
-				args: `--iw 1.5 --v 6 --ar 2:3${crefArg}`
+				args: `--iw 1.5 --v 6 --ar 2:3${crefArg} ${srefArg}`
 			}
 			};
 
@@ -143,7 +148,7 @@
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTUwNjY4MDMsInN1YiI6IjY3NTAwNmMwZWY3OWQxMDE3ZGU0ZjVmMiIsInBheWxvYWQiOnsidXNlcl9pZCI6IjY3NTAwNmMwZWY3OWQxMDE3ZGU0ZjVmMiJ9fQ.-dY65rp8puRbaTDz4InRBtHkQEjs_dJhQSIFPu0WanU'
+				'Authorization': MIDJOURNEY_TOKEN
 			},
 			body: JSON.stringify(requestPayload)
 			});
@@ -164,7 +169,7 @@
 				method: 'POST',
 				headers: {
 				'Content-Type': 'application/json',
-				'Authorization': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTUwNjY4MDMsInN1YiI6IjY3NTAwNmMwZWY3OWQxMDE3ZGU0ZjVmMiIsInBheWxvYWQiOnsidXNlcl9pZCI6IjY3NTAwNmMwZWY3OWQxMDE3ZGU0ZjVmMiJ9fQ.-dY65rp8puRbaTDz4InRBtHkQEjs_dJhQSIFPu0WanU'
+				'Authorization': MIDJOURNEY_TOKEN
 				},
 				body: JSON.stringify({
 				type: 'query',
